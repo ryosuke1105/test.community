@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>北九州コミュニティチャレンジ</title>
     <style>
+        :root {
+            --main-color: #e60012;
+            --text-color: #2c3e50;
+            --bg-color: #ffffff;
+            --gray-bg: #f5f5f5;
+            --border-color: #eeeeee;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -12,9 +20,9 @@
         }
         body {
             font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-            color: #2c3e50;
-            background-color: #ffffff;
-            line-height: 1.9;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.8;
             letter-spacing: 0.05em;
         }
         a {
@@ -22,14 +30,15 @@
             color: inherit;
         }
 
+        /* --- Header & Nav --- */
         header {
-            background-color: #ffffff;
+            background-color: var(--bg-color);
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 80px;
-            border-bottom: 3px solid #e60012;
+            border-bottom: 3px solid var(--main-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -40,35 +49,23 @@
             height: 50px;
             display: block;
         }
-        
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 20px;
+            gap: 10px; /* メニュー同士の隙間を少し狭めて、一列に収まりやすくしました */
+            flex-wrap: nowrap; /* 折り返しを禁止して一列にする設定です */
+            white-space: nowrap; /* 文字が途中で改行されるのを防ぎます */
         }
         .nav-menu a {
             font-size: 14px;
             font-weight: bold;
             color: #333333;
-            padding: 10px 15px;
+            padding: 5px 10px;
             position: relative;
             transition: color 0.3s ease;
         }
-        .nav-menu a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 15px;
-            width: 0;
-            height: 2px;
-            background-color: #e60012;
-            transition: width 0.3s ease;
-        }
         .nav-menu a:hover {
-            color: #e60012;
-        }
-        .nav-menu a:hover::after {
-            width: calc(100% - 30px);
+            color: var(--main-color);
         }
 
         .hamburger {
@@ -85,11 +82,11 @@
         .hamburger span {
             width: 100%;
             height: 3px;
-            background-color: #e60012;
+            background-color: var(--main-color);
             border-radius: 10px;
-            transition: all 0.3s ease;
         }
 
+        /* --- Hero Image --- */
         .hero-image-area {
             width: 100%;
             margin-top: 80px;
@@ -109,180 +106,278 @@
             transform: translate(-50%, -50%);
             text-align: center;
             width: 90%;
-            max-width: 900px;
-            color: #e60012;
+            color: var(--main-color);
             font-size: 36px;
             font-weight: bold;
             line-height: 1.5;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
         }
 
-        /* 冒頭の「探す」エリア */
-        .quick-search-area {
-            background-color: #fdfaf6;
-            text-align: center;
-            padding: 40px 20px;
-            border-bottom: 1px solid #eeeeee;
-        }
-        .btn-search {
-            display: inline-block;
-            background-color: #ff8c00;
-            color: #ffffff;
-            font-size: 20px;
-            font-weight: bold;
-            padding: 20px 60px;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            letter-spacing: 0.1em;
-        }
-        .btn-search:hover {
-            background-color: #e67e00;
-            transform: translateY(-2px);
-        }
-
-        main {
-        }
+        /* --- Common Section Styles --- */
         section {
-            padding: 80px 20px;
-            max-width: 900px;
+            padding: 60px 20px;
+            max-width: 1000px;
             margin: 0 auto;
-            border-bottom: 1px solid #eeeeee;
+            border-bottom: 1px solid var(--border-color);
         }
         section:last-of-type {
             border-bottom: none;
         }
-
         h2 {
-            font-size: 26px;
+            font-size: 24px;
             color: #111111;
-            margin-bottom: 40px;
-            position: relative;
+            margin-bottom: 30px;
             padding-left: 15px;
-            border-left: 6px solid #e60012;
+            border-left: 6px solid var(--main-color);
             line-height: 1.4;
         }
-        
-        /* ターゲット向けのブロックと小見出し */
-        .target-block {
-            background-color: #fafafa;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 40px;
-        }
         h3 {
-            font-size: 20px;
-            color: #e60012;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e60012;
-        }
-        
-        p {
-            margin-bottom: 25px;
-            white-space: pre-line;
-        }
-
-        .btn-container {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            border: none;
-            letter-spacing: 0.1em;
-            border-radius: 4px;
-        }
-        .btn-info {
-            background-color: #ffffff;
-            color: #e60012;
-            border: 2px solid #e60012;
-        }
-        .btn-info:hover {
-            background-color: #fff0f0;
-        }
-        .btn-form {
-            background-color: #e60012;
-            color: #ffffff;
-        }
-        .btn-form:hover {
-            background-color: #b3000d;
-            transform: translateY(-2px);
-        }
-
-        .sub-title {
             font-size: 18px;
-            color: #e60012;
-            margin-top: 35px;
-            margin-bottom: 15px;
-            font-weight: bold;
+            color: var(--main-color);
+            margin: 20px 0 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
         }
-        .officer-list {
-            background-color: #ffffff;
-            border-left: 4px solid #e60012;
-            padding: 25px 40px;
-            margin: 20px 0;
-            list-style-type: square;
-        }
-        .note {
-            font-size: 14px;
-            color: #666666;
-            margin-top: 5px;
+        p {
+            margin-bottom: 20px;
         }
 
-        .news-list {
-            list-style: none;
-        }
-        .news-item {
-            padding: 20px 0;
-            border-bottom: 1px solid #eaeaea;
+        /* --- Layout: Flex Columns --- */
+        .flex-container {
             display: flex;
             gap: 30px;
+            flex-wrap: wrap;
         }
-        .news-date {
-            color: #e60012;
+        .flex-half {
+            flex: 1;
+            min-width: 300px;
+            background: var(--gray-bg);
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
             font-weight: bold;
-            min-width: 100px;
-        }
-
-        footer {
-            background-color: #111111;
-            color: #ffffff;
+            font-size: 15px;
+            cursor: pointer;
             text-align: center;
-            padding: 40px 20px;
-            font-size: 13px;
-            letter-spacing: 0.1em;
+            border-radius: 5px;
+            border: none;
+            transition: opacity 0.3s;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .btn-primary {
+            background-color: var(--main-color);
+            color: #fff;
+        }
+        .btn-gray {
+            background-color: #666;
+            color: #fff;
         }
 
+        /* --- Search Area --- */
+        .search-controls {
+            background: var(--gray-bg);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-controls select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        /* Cards for Clubs */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .club-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+        .club-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--main-color);
+        }
+        .club-badge {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .club-info {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .club-action {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        /* --- Table --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--gray-bg);
+            font-weight: bold;
+        }
+
+        /* --- FAQ Tabs Design --- */
+        .faq-tabs {
+            display: flex;
+            gap: 2px;
+            margin-top: 30px;
+            border-bottom: 4px solid #3b6bbf; /* 選択中タブと同じ青い下線 */
+            overflow-x: auto; /* スマホではみ出た場合は横スクロールできるように */
+        }
+        .faq-tab {
+            background-color: #e0e4e8; /* 選択されていないタブのグレー */
+            color: #ffffff;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 12px 12px 0 0; /* 上の角だけ丸くする */
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap; /* テキストの折り返し禁止 */
+            transition: background-color 0.3s;
+            line-height: 1.2;
+        }
+        .faq-tab:not(.active) {
+            color: #999999;
+        }
+        .faq-tab.active {
+            background-color: #3b6bbf; /* 選択中タブの青色 */
+            color: #ffffff;
+        }
+        
+        .faq-content-area {
+            background-color: #f7f9fa; /* コンテンツエリアの薄いグレー背景 */
+            padding: 30px 20px;
+            border-radius: 0 0 12px 12px;
+            margin-bottom: 40px;
+        }
+
+        /* --- Nested Accordion Design --- */
+        .faq-category {
+            margin-bottom: 20px;
+            border: 1px solid #d1d1d1;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+        .faq-category summary {
+            background-color: #f0f0f0;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            list-style: none; /* デフォルトの三角マークを消す */
+            position: relative;
+        }
+        /* 右端の ＋ / － アイコンの設定 */
+        .faq-category summary::after,
+        .faq-question summary::after {
+            content: '+';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+        }
+        .faq-category[open] > summary::after,
+        .faq-question[open] > summary::after {
+            content: '-';
+        }
+        .faq-category[open] > summary {
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #d1d1d1;
+        }
+
+        .faq-qa-list {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        /* 中の質問項目 */
+        .faq-question {
+            border: 1px solid #d1d1d1;
+            border-radius: 6px;
+        }
+        .faq-question summary {
+            padding: 12px 40px 12px 15px; /* 右側にアイコン用の余白を設ける */
+            font-weight: normal;
+            font-size: 15px;
+            cursor: pointer;
+            list-style: none;
+            position: relative;
+            background-color: #ffffff;
+            border-radius: 6px;
+        }
+        .faq-question[open] > summary {
+            border-radius: 6px 6px 0 0;
+            border-bottom: 1px dashed #d1d1d1;
+        }
+        .faq-answer-content {
+            padding: 15px;
+            font-size: 14px;
+            background-color: #fafbfc;
+            border-radius: 0 0 6px 6px;
+            white-space: pre-wrap; /* CSV内の改行を反映させる */
+        }
+
+        /* --- Links List --- */
+        .link-list {
+            list-style: none;
+        }
+        .link-list li {
+            margin-bottom: 10px;
+        }
+        .link-list a {
+            color: #0056b3;
+        }
+        .link-list a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
         @media (max-width: 960px) {
-            header {
-                padding: 0 20px;
-            }
             .nav-menu {
-                position: fixed;
-                top: 80px;
-                right: -100%;
-                flex-direction: column;
-                background-color: #ffffff;
-                width: 100%;
-                height: calc(100vh - 80px);
-                padding: 40px 20px;
-                gap: 20px;
-                transition: all 0.3s ease;
-                overflow-y: auto;
-            }
-            .nav-menu.active {
-                right: 0;
+                display: none; /* スマホ時は非表示（実装簡略化のため） */
             }
             .hamburger {
                 display: flex;
@@ -297,158 +392,497 @@
 
     <header>
         <div class="logo">
-            <img src="image/action.png" alt="北九州コミュニティチャレンジ ロゴ">
+            <img src="image/action.png" alt="北九州コミュニティチャレンジ ロゴ" onerror="this.src='https://via.placeholder.com/150x50?text=Logo'">
         </div>
-        
-        <ul class="nav-menu" id="navMenu">
-            <li><a href="#about">北九州コミュニティチャレンジとは</a></li>
-            <li><a href="#news">お知らせ</a></li>
-            <li><a href="#for-students">生徒のみなさんへ</a></li>
-            <li><a href="#for-clubs">クラブ・団体の方へ</a></li>
-            <li><a href="#for-instructors">指導したい方へ</a></li>
-            <li><a href="#guideline">会議・ガイドライン</a></li>
+        <ul class="nav-menu">
+            <li><a href="#about">地域クラブ活動とは</a></li>
+            <li><a href="#search">地域クラブを探す</a></li>
+            <li><a href="#startup">地域クラブを立ち上げる</a></li>
+            <li><a href="#seminar">説明会・研修会</a></li>
+            <li><a href="#recruit">募集</a></li>
+            <li><a href="#faq">よくあるご質問</a></li>
+            <li><a href="#plan">計画・会議等</a></li>
+            <li><a href="#link">関連リンク</a></li>
         </ul>
-
-        <button class="hamburger" id="hamburgerBtn">
-            <span></span>
-            <span></span>
-            <span></span>
+        <button class="hamburger" id="hamburgerBtn" onclick="alert('メニューを開きます')">
+            <span></span><span></span><span></span>
         </button>
     </header>
 
     <div class="hero-image-area">
-        <img src="image/head.png" alt="北九州コミュニティチャレンジ メインビジュアル" class="hero-image">
-        
+        <img src="image/head.png" alt="メインビジュアル" class="hero-image" onerror="this.src='https://via.placeholder.com/1200x400?text=Hero+Image'">
         <div class="hero-text-overlay">
             子どもたちの「好き」を地域で応援！<br>部活動の地域展開について
         </div>
     </div>
 
-    <div class="quick-search-area">
-        <button class="btn-search" onclick="actionAlert('地域クラブ検索ページへ移動します（テスト）')">地域クラブを探す 🔍</button>
-    </div>
-
-    <main>
+    <!-- 地域クラブ活動とは -->
+    <section id="about">
+        <h2>地域クラブ活動とは</h2>
+        <p>部活動は、学校教育の一環と位置付けられ、連帯感や責任感、自己肯定感を育むことに資するなど、教育的意義の高い活動とされてきました。一方で、少子化の進展により、学校単位で部活動を運営・維持することが困難となる例も生じてきています。</p>
+        <p>こうした中で北九州市は、国の方針にも基づき、段階的に休日の部活動を行わないこととし、かわりに、休日には地域クラブ活動を行うこととしました。地域クラブ活動は、教育委員会が認定したクラブで行う活動で、様々な種目・分野があり、違う学校の仲間と交流しながら活動することもできます。</p>
+        <p>「学校頼みの活動から、まち全体で支える活動へ」－いま、進められている部活動の改革は、北九州市のこどもたちが、将来にわたってスポーツ・文化芸術活動に親しむことができるよう、まちの様々な人たちの協力も受けて、行われているものです。</p>
+        <p>こどもたちが1人1人が、自己実現につながるチャレンジができる環境をしっかりと整えていくため、取組を進めていきます。</p>
         
-        <section id="about">
-            <h2>北九州コミュニティチャレンジとは</h2>
-            <p>北九州市では、子どもたちがこれからもスポーツや文化芸術活動に思いっきり打ち込めるよう、部活動の「地域移行」を進めています。
-            これまでの学校部活動だけでなく、地域の皆さんと協力して、より多様で自由な活動環境を作るため、令和7年5月に「北九州市部活動地域展開推進計画」を策定しました。おかげさまで、すでに約120の地域クラブが誕生し、子どもたちが活き活きと活動しています。
-            本格実施となる令和9年9月に向けて、現在はまさに準備の真っ最中です。「もっとこうだったらいいな」「ここはもっと改善できるかも？」といった皆さんのリアルな声を大切にしたいと考え、今回、「地域クラブ活動の円滑な推進に関する市民会議」を設置しました。
-            この会議では、生徒さんや保護者の皆さん、学校、地域の団体、企業など、さまざまな立場の方に集まっていただき、現場の知恵を出し合います.
-            北九州市らしい、誰もが安心して楽しめる活動の仕組みをみんなで一緒に作っていきましょう！</p>
-        </section>
-
-        <section id="news">
-            <h2>お知らせ</h2>
-          <ul class="news-list">
-                <li class="news-item">
-                    <span class="news-date">2026.06.10</span>
-                    <span class="news-text">「北九州コミュニティチャレンジ」テストポータルサイトを公開しました。</span>
-                </li>
-                <li class="news-item">
-                    <span class="news-date">2026.05.20</span>
-                    <span class="news-text">第1回 市民会議の議事録を公開いたしました。</span>
-                </li>
-                <li class="news-item">
-                    <span class="news-date">2026.04.15</span>
-                    <span class="news-text">新規に認定された地域クラブの一覧を更新しました。</span>
-                </li>
-            </ul>
-        </section>
-
-        <section id="support">
-            <h2>あなたの地域で、子どもたちの「放課後」を支えませんか？</h2>
-
-            <div class="target-block" id="for-students">
-                <h3>生徒のみなさんへ</h3>
-                <p>地域には、スポーツや文化芸術など、様々な活動に取り組めるクラブがたくさんあります。
-                自分に合ったクラブを見つけて、新しい仲間と一緒に「好き」なことにチャレンジしてみませんか？</p>
-                <div class="btn-container">
-                    <button class="btn btn-search" style="font-size: 16px; padding: 15px 40px;" onclick="actionAlert('地域クラブ検索ページへ移動します（テスト）')">地域クラブを探す</button>
-                </div>
+        <h3>詳しく知りたい方へ</h3>
+        <div class="flex-container">
+            <div class="flex-half" style="text-align: center;">
+                <p>▶説明動画を見る（約○分）※外部サイトにリンク</p>
+                <!-- YouTubeサムネイルのダミー -->
+                <a href="#" target="_blank">
+                    <img src="https://via.placeholder.com/320x180?text=YouTube+Thumbnail" alt="動画サムネイル" style="max-width: 100%; border-radius: 8px;">
+                </a>
             </div>
-
-            <div class="target-block" id="for-clubs">
-                <h3>認定地域クラブ申請をしたいクラブ・団体の方へ</h3>
-                <div class="sub-title" style="margin-top: 0;">1. 「北九州市地域クラブ」とは？</div>
-                <p>子どもたちが将来にわたってスポーツや文化芸術に親しめるよう、学校部活動の受け皿となるコミュニティです。
-                市から「北九州市地域クラブ」として認定された団体は、学校の施設を活動拠点として利用することができます。</p>
-
-                <div class="sub-title">2. 地域クラブを設立・認定されるまでのステップ</div>
-                <p>クラブ設立には、運営を円滑に行うための基本的なルールづくりが必要です。以下の手順で準備を進めてください。</p>
-                
-                <p><strong>【設立に向けた準備】</strong> まずは、クラブの運営方針をまとめた「規約（または会則）」を作成し、運営を担うチーム（役員）を組織しましょう。規約には、最低限以下の内容を盛り込んでください。</p>
-                
-                <p>● <strong>活動の目的：</strong> どんな目標や想いで活動するのか
-                ● <strong>入退会について：</strong> メンバーの加入や辞退のルール
-                ● <strong>会費について：</strong> 運営に必要な費用や支払い方法
-                ● <strong>総会について：</strong> クラブの運営方針を決める会議の仕組み</p>
-
-                <div class="sub-title">運営体制（役員）</div>
-                <p>責任を持ってクラブを運営するため、以下の役員を配置してください。</p>
-                <ul class="officer-list">
-                    <li>代表</li>
-                    <li>副代表</li>
-                    <li>会計</li>
-                    <li>事務局</li>
-                    <li>監事（※）</li>
+            <div class="flex-half">
+                <p style="font-weight: bold; color: var(--main-color);">◆地域クラブ活動の推進に関する資料</p>
+                <ul class="link-list">
+                    <li><a href="#">▶ 地域クラブ活動の推進に関するポスター・リーフレット（ＰＤＦ）</a></li>
+                    <li><a href="#">▶ 地域クラブ活動の推進に関する説明資料（ＰＤＦ）</a></li>
                 </ul>
-                <p class="note">※監事は、代表・副代表・会計・事務局のいずれとも兼務できません。</p>
+            </div>
+        </div>
+    </section>
 
-                <div class="btn-container">
-                    <button class="btn btn-info" onclick="actionAlert('設立ガイドラインのページへ移動します（テスト）')">詳しくはこちら</button>
-                    <button class="btn btn-form" onclick="actionAlert('地域クラブ認定申請フォームへ移動します（テスト）')">申請フォームはこちら</button>
-                </div>
+    <!-- 地域クラブを探す -->
+    <section id="search">
+        <h2>地域クラブを探す</h2>
+        <p>地域クラブ活動は、部活動が担ってきた教育的意義を継承・発展させつつ、新たな価値の創出を目指すものです。<br>
+        例えば、多様な体験と選択肢の拡大、学校を超えた多くの仲間とのつながり創出、地域の幅広い世代の人との交流の促進等が期待されます。地域クラブ活動を通じ、こどもたちが自分の可能性を信じて自己実現につながるチャレンジができるようになることを目指しています。</p>
+        <p>北九州市教育委員会は、地域クラブ活動を行う地域クラブを、所定の要件を満たしているか確認した上で、認定しています※。<br>
+        ここでは、北九州市教育委員会の認定を受けた地域クラブについて、種目や活動場所などから探すことが可能です。ぜひ、興味のあるクラブを見つけてみてください。<br>
+        <small>※詳細は <a href="#startup" style="color: blue;">地域クラブを立ち上げる</a> をご覧ください。</small></p>
+
+        <div class="search-controls">
+            <select id="genreSelect">
+                <option value="すべて">種目▼</option>
+                <!-- JavaScriptで動的に追加されます -->
+            </select>
+            <select id="areaSelect">
+                <option value="すべて">活動場所▼</option>
+                <option value="門司区">門司区</option>
+                <option value="小倉北区">小倉北区</option>
+                <option value="小倉南区">小倉南区</option>
+                <option value="若松区">若松区</option>
+                <option value="八幡東区">八幡東区</option>
+                <option value="八幡西区">八幡西区</option>
+                <option value="戸畑区">戸畑区</option>
+            </select>
+            <button class="btn btn-primary" onclick="filterClubs()">検索する</button>
+        </div>
+
+        <div class="card-grid" id="clubCardContainer">
+            <!-- JavaScriptでカードがここに生成されます -->
+            <p>データを読み込んでいます...</p>
+        </div>
+    </section>
+
+    <!-- 地域クラブを立ち上げる -->
+    <section id="startup">
+        <h2>地域クラブを立ち上げる</h2>
+        <p>地域クラブ活動は、部活動が担ってきた教育的意義を継承・発展させるものであり、北九州市教育委員会は、所定の要件を満たすことで、地域クラブ活動を行うクラブを「北九州市地域クラブ」として認定しています。所定の要件とは、例えば、教育委員会が主催する研修の受講者による指導、市ガイドラインに準じた活動時間等の設定、営利目的の運営でないことなどです。<br>
+        教育委員会から認定された地域クラブは、学校施設を優先的に利用することができます。</p>
+
+        <div class="flex-container">
+            <div class="flex-half" style="background-color: transparent; border: 1px solid var(--border-color); padding: 20px;">
+                <p style="font-weight: bold;">まずお読みください</p>
+                <ul class="link-list">
+                    <li><a href="#">▶ 「北九州市地域クラブ」申請から認定までの流れ（ＰＤＦ）</a></li>
+                </ul>
+                <p style="font-weight: bold; margin-top: 15px;">◆認定要綱・手引き</p>
+                <ul class="link-list">
+                    <li><a href="#">▶ 北九州市地域クラブ認定要綱（ＰＤＦ）</a></li>
+                    <li><a href="#">▶ 部活動地域展開北九州市地域クラブの手引き（PDF）</a></li>
+                </ul>
+                <p style="font-weight: bold; margin-top: 15px;">◆申請書類等</p>
+                <ul class="link-list">
+                    <li><a href="#">▶ （様式第1号）北九州市地域クラブ認定申請書（Excel）</a></li>
+                    <li><a href="#">▶ （様式第2号）北九州市地域クラブ認定要件確認書（Word）</a></li>
+                    <li><a href="#">▶ （参考様式）会則（Word）</a></li>
+                </ul>
+                <p style="font-weight: bold; margin-top: 15px;">◆申請方法</p>
+                <p style="font-size: 14px;">以下のいずれかの方法で申請してください。<br>
+                ①申請書類を生徒指導課に持参又は郵送<br>
+                ②北九州市地域クラブ認定申請フォーム（外部リンク）から電子申請</p>
             </div>
 
-            <div class="target-block" id="for-instructors">
-                <h3>子どもたちの指導をしたい方へ</h3>
-                <p>あなたがお持ちの知識や経験を活かして、子どもたちと一緒に成長しませんか？
-                部活動の地域移行に伴い、地域クラブで子どもたちをサポートしてくださる指導者を募集しています。</p>
-                <div class="btn-container">
-                    <button class="btn btn-info" onclick="actionAlert('指導者募集要項のページへ移動します（テスト）')">詳しくはこちら</button>
-                    <button class="btn btn-form" onclick="actionAlert('指導者登録申請フォームへ移動します（テスト）')">申請フォームはこちら</button>
+            <div class="flex-half" style="background-color: #fff0f0;">
+                <p>北九州市教育委員会では、地域クラブ立ち上げを支援し、学校との調整等を実施する「コーディネーター」を２名配置しています。</p>
+                <p>地域クラブの立ち上げに興味をお持ちになった方、申請手続を詳しく知りたい方などのご相談も承ります。以下のフォームから、相談の申し込みが可能です。</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="alert('相談フォームへ移動します')">コーディネーターに相談する</button>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="guideline">
-            <h2>会議・ガイドライン</h2>
-            <p>部活動地域移行に関する資料や、過去の会議の配布資料一覧です。（北九州市公式ページへのリンクイメージ）</p>
-            <ul class="link-list" style="list-style: none;">
-                <li class="link-item" style="margin-bottom: 10px;"><a href="#" onclick="return false;">▶ 北九州市部活動地域展開推進計画（PDF）</a></li>
-                <li class="link-item" style="margin-bottom: 10px;"><a href="#" onclick="return false;">▶ 地域クラブ活動の円滑な推進に関する市民会議 設置要綱</a></li>
-                <li class="link-item" style="margin-bottom: 10px;"><a href="#" onclick="return false;">▶ 地域クラブ認定基準・運営ガイドライン</a></li>
-            </ul>
-        </section>
+    <!-- 説明会・研修会 -->
+    <section id="seminar">
+        <h2>説明会・研修会</h2>
+        <p>部活動改革や地域クラブ活動の推進に関する地域説明会や、地域クラブの指導者（いわゆる「見守り」のみの方も含みます。）となるため場合に受講が必須となる指導者研修会を、随時開催しています。参加費はいずれも無料です。事前にお申し込みの上、ぜひご参加ください。</p>
 
-    </main>
+        <div class="flex-container">
+            <div class="flex-half">
+                <h3>地域説明会</h3>
+                <p><strong>第一部：【地域展開説明会（４５分程度）】</strong><br>
+                学校部活動の現状・課題、北九州市の地域展開推進計画、スケジュール、質疑応答 等</p>
+                <p><strong>第二部：【認定要綱説明会（４０分程度）】</strong><br>
+                北九州市地域クラブ概要、申請の手続き、スケジュール、質疑応答 等</p>
+            </div>
+            <div class="flex-half">
+                <h3>指導者研修会</h3>
+                <p>「北九州市地域クラブ」の指導者を対象に、生徒の心身の健康管理や事故防止、体罰・ハラスメントの根絶、いじめ防止など、生徒理解を深めることを目的として実施。（90分程度）</p>
+                <ul class="link-list">
+                    <li><a href="#">▶ 北九州市地域クラブ指導者研修実施要綱（PDF）</a></li>
+                </ul>
+            </div>
+        </div>
 
-    <footer>
+        <h3 style="margin-top: 40px;">開催スケジュール</h3>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>種別</th>
+                        <th>日時</th>
+                        <th>会場</th>
+                        <th>申込</th>
+                    </tr>
+                </thead>
+                <tbody id="seminarTableBody">
+                    <!-- JavaScriptで生成されます -->
+                    <tr><td colspan="4">データを読み込んでいます...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 募集 -->
+    <section id="recruit">
+        <h2>募集</h2>
+        <p>地域クラブ活動は、従来の学校部活動の大きな転換点となるものであり、「学校頼みの活動から、まち全体で支える活動へ」変わっていきます。このため、まちの様々な方々や団体・企業との連携・協力や、市民の皆さまからの貴重なご意見をいただきながら、こどもたちの自己実現につながるチャレンジができる機会の確保に取り組んでいきます。</p>
+        
+        <ul class="link-list" style="margin-bottom: 30px;">
+            <li><strong>▶ 指導者人材バンク</strong> （※準備中）</li>
+            <li><strong>▶ 協賛企業</strong> （※準備中）</li>
+        </ul>
+
+        <h3>ご意見窓口</h3>
+        <p>地域クラブ活動について、ご質問やご意見があれば、以下の問合せフォームからお知らせください。</p>
+        <button class="btn btn-gray" onclick="alert('問合せフォームへ')">問合せフォームはこちら</button>
+    </section>
+
+    <!-- よくあるご質問 -->
+    <section id="faq">
+        <h2>よくあるご質問</h2>
+        <p>地域クラブ活動に関して、よくあるご質問とその答えをまとめています。</p>
+        
+        <!-- タブボタン部分 -->
+        <div class="faq-tabs">
+            <button class="faq-tab active" data-target="全体" onclick="changeFaqTab('全体', this)">全体</button>
+            <button class="faq-tab" data-target="生徒の皆さん向け" onclick="changeFaqTab('生徒の皆さん向け', this)">生徒の皆さん向け</button>
+            <button class="faq-tab" data-target="保護者の方向け" onclick="changeFaqTab('保護者の方向け', this)">保護者の方向け</button>
+            <button class="faq-tab" data-target="学校向け" onclick="changeFaqTab('学校向け', this)">学校向け</button>
+            <button class="faq-tab" data-target="クラブ立ち上げ希望の方向け" onclick="changeFaqTab('クラブ立ち上げ希望の方向け', this)">クラブ立ち上げ<br>希望の方向け</button>
+        </div>
+
+        <!-- 質問の表示エリア（最初は空ですが、JavaScriptでデータが入ります） -->
+        <div class="faq-content-area" id="faqContentArea">
+            <p>データを読み込んでいます...</p>
+        </div>
+    </section>
+
+    <!-- 計画・会議等 -->
+    <section id="plan">
+        <h2>計画・会議等</h2>
+        <p>地域クラブ活動の推進に係る計画・会議等に関する情報を掲載しています。</p>
+        
+        <h3>計画等</h3>
+        <ul class="link-list">
+            <li><a href="#">▶ 北九州市部活動地域展開推進計画（PDF）</a></li>
+            <li><a href="#">▶ 北九州市部活動及び地域クラブ活動の在り方に関する総合的なガイドライン（PDF）</a></li>
+        </ul>
+        <p style="font-size: 14px; color: #666;">（参考）<br>
+        ・「北九州市部活動地域移行(展開)推進計画」の策定に係る市民意見の募集結果について(外部リンク)<br>
+        ・北九州市部活の未来を考える会(令和5年〜令和7年) (外部リンク)</p>
+
+        <h3>会議</h3>
+        <ul class="link-list">
+            <li><a href="#">▶ 地域クラブ活動の円滑な推進に関する市民会議（令和8年）</a></li>
+        </ul>
+    </section>
+
+    <!-- 関連リンク -->
+    <section id="link">
+        <h2>関連リンク</h2>
+        <ul class="link-list">
+            <li><a href="#">北九州市中学校部活動について</a></li>
+            <li><a href="#">中学校部活動指導員制度について</a></li>
+            <li><a href="#">中学校部活動外部講師制度について</a></li>
+            <li><a href="#">「連携部活動（拠点型）」について</a></li>
+            <li><a href="#">北九州市立小・中・特別支援学校児童生徒派遣補助について（クラブチーム等対象）</a></li>
+        </ul>
+    </section>
+
+    <footer style="background-color: #111; color: #fff; text-align: center; padding: 30px; margin-top: 40px; font-size: 13px;">
         <p>&copy; 2026 北九州コミュニティチャレンジ All Rights Reserved.</p>
     </footer>
 
+    <!-- スクリプト領域 (CSV読み込み等) -->
     <script>
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const navMenu = document.getElementById('navMenu');
-
-        hamburgerBtn.addEventListener('click', () => {
-            hamburgerBtn.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        const navLinks = document.querySelectorAll('.nav-menu a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                hamburgerBtn.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
-        });
-
-        function actionAlert(message) {
-            alert(message + "\n※現在はテストサイトのため実際のページには遷移しません。");
+        // ----------------------------------------------------
+        // 1. 簡易CSVパーサー関数
+        // ----------------------------------------------------
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            
+            for(let i = 1; i < lines.length; i++) {
+                if(!lines[i].trim()) continue;
+                const currentline = lines[i].split(',').map(item => item.trim().replace(/"/g, ''));
+                const obj = {};
+                for(let j = 0; j < headers.length; j++) {
+                    obj[headers[j]] = currentline[j] || '';
+                }
+                result.push(obj);
+            }
+            return result;
         }
+
+        // ----------------------------------------------------
+        // 2. クラブデータの読み込みと表示
+        // ----------------------------------------------------
+        let allClubsData = []; // 読み込んだデータを保持
+
+        function loadClubs() {
+            fetch('allclub.csv')
+                .then(response => {
+                    if (!response.ok) throw new Error("CSVが見つかりません");
+                    return response.text();
+                })
+                .then(csvText => {
+                    allClubsData = parseCSV(csvText);
+                    setupGenreSelect();
+                    renderClubCards(allClubsData);
+                })
+                .catch(error => {
+                    console.warn(error + " - ダミーデータを表示します。");
+                    // エラー時（ローカル実行時等）のダミーデータ
+                    allClubsData = [
+                        {"クラブ名":"北九州サッカークラブ", "種目等":"サッカー", "主な活動場所":"小倉北区（〇〇中学校）", "会費等":"月額2,000円", "クラブとしての大会参加":"あり", "ホームページリンク":"https://example.com"},
+                        {"クラブ名":"門司エンジョイベースボール", "種目等":"野球", "主な活動場所":"門司区（〇〇グラウンド）", "会費等":"月額3,000円", "クラブとしての大会参加":"なし", "ホームページリンク":""},
+                        {"クラブ名":"八幡アート部", "種目等":"美術", "主な活動場所":"八幡東区（〇〇市民センター）", "会費等":"無料", "クラブとしての大会参加":"なし", "ホームページリンク":""}
+                    ];
+                    setupGenreSelect();
+                    renderClubCards(allClubsData);
+                });
+        }
+
+        function setupGenreSelect() {
+            const select = document.getElementById('genreSelect');
+            const genres = new Set();
+            allClubsData.forEach(club => {
+                if(club["種目等"]) genres.add(club["種目等"]);
+            });
+            genres.forEach(genre => {
+                const option = document.createElement('option');
+                option.value = genre;
+                option.textContent = genre;
+                select.appendChild(option);
+            });
+        }
+
+        function renderClubCards(data) {
+            const container = document.getElementById('clubCardContainer');
+            container.innerHTML = '';
+            
+            if(data.length === 0) {
+                container.innerHTML = '<p>該当するクラブが見つかりませんでした。</p>';
+                return;
+            }
+
+            data.forEach(club => {
+                const card = document.createElement('div');
+                card.className = 'club-card';
+                
+                // リンクがある場合はリンクを表示、ない場合はテキスト
+                const hpLink = club["ホームページリンク"] 
+                    ? `<a href="${club["ホームページリンク"]}" target="_blank" style="color:blue;">ホームページを見る</a>` 
+                    : 'ホームページなし';
+
+                card.innerHTML = `
+                    <div class="club-badge">${club["種目等"] || '種目不明'}</div>
+                    <div class="club-card-title">${club["クラブ名"] || '名称不明'}</div>
+                    <div class="club-info"><strong>活動場所:</strong> ${club["主な活動場所"] || '-'}</div>
+                    <div class="club-info"><strong>会費等:</strong> ${club["会費等"] || '-'}</div>
+                    <div class="club-info"><strong>大会参加:</strong> ${club["クラブとしての大会参加"] || '-'}</div>
+                    <div class="club-info">${hpLink}</div>
+                    <div class="club-action">
+                        <button class="btn btn-gray" style="padding: 8px 15px; font-size: 13px;" onclick="alert('${club["クラブ名"]} へ問合せします')">このクラブに問合せ</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterClubs() {
+            const genre = document.getElementById('genreSelect').value;
+            const area = document.getElementById('areaSelect').value;
+
+            const filtered = allClubsData.filter(club => {
+                const matchGenre = (genre === "すべて" || club["種目等"] === genre);
+                const matchArea = (area === "すべて" || (club["主な活動場所"] && club["主な活動場所"].includes(area)));
+                return matchGenre && matchArea;
+            });
+
+            renderClubCards(filtered);
+        }
+
+        // ----------------------------------------------------
+        // 3. 説明会・研修会データの読み込み
+        // ----------------------------------------------------
+        function loadSeminars() {
+            fetch('setumei.csv')
+                .then(response => {
+                    if (!response.ok) throw new Error("CSVが見つかりません");
+                    return response.text();
+                })
+                .then(csvText => {
+                    const data = parseCSV(csvText);
+                    renderSeminarTable(data);
+                })
+                .catch(error => {
+                    console.warn(error + " - ダミーデータを表示します。");
+                    // エラー時（ローカル実行時等）のダミーデータ
+                    const dummyData = [
+                        {"種別":"地域説明会", "日時":"令和8年○月○日(水) 18:30-20:00", "会場":"〇〇市民センター 大会議室", "参加申し込みへのリンク":"https://example.com/apply1"},
+                        {"種別":"指導者研修会", "日時":"令和8年○月○日(金) 18:30-20:00", "会場":"〇〇市民センター 大会議室", "参加申し込みへのリンク":"https://example.com/apply2"}
+                    ];
+                    renderSeminarTable(dummyData);
+                });
+        }
+
+        function renderSeminarTable(data) {
+            const tbody = document.getElementById('seminarTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item["種別"] || '-'}</td>
+                    <td>${item["日時"] || '-'}</td>
+                    <td>${item["会場"] || '-'}</td>
+                    <td>
+                        ${item["参加申し込みへのリンク"] ? `<a href="${item["参加申し込みへのリンク"]}" target="_blank" class="btn btn-primary" style="padding: 5px 10px; font-size:12px;">参加申込み</a>` : '-'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ----------------------------------------------------
+        // 4. FAQデータの読み込みとタブ切り替え
+        // ----------------------------------------------------
+        let faqData = []; // FAQデータを保持する変数
+
+        function loadFAQ() {
+            fetch('faq.csv')
+                .then(response => {
+                    if (!response.ok) throw new Error("FAQ用のCSVが見つかりません");
+                    return response.text();
+                })
+                .then(csvText => {
+                    faqData = parseCSV(csvText);
+                    // 最初は「全体」タブを表示する
+                    changeFaqTab('全体', document.querySelector('.faq-tab[data-target="全体"]'));
+                })
+                .catch(error => {
+                    console.warn(error + " - ダミーのFAQデータを表示します。");
+                    // エラー時のダミーデータ
+                    faqData = [
+                        { "対象": "全体", "カテゴリ": "全体に関することについて", "質問": "Q. テストの質問です", "回答": "A. テストの回答です。" },
+                        { "対象": "全体", "カテゴリ": "地域クラブ・指導者に関すること", "質問": "Q1. 地域クラブ活動とは何ですか。", "回答": "A1. これまでの学校部活動の受け皿として、･･･" },
+                        { "対象": "全体", "カテゴリ": "地域クラブ・指導者に関すること", "質問": "Q2. 「北九州市地域クラブ」に認められるための要件は何ですか。", "回答": "A2. 所定の要件を満たす必要があります。" },
+                        { "対象": "生徒の皆さん向け", "カテゴリ": "参加方法について", "質問": "Q1. どこから参加できますか？", "回答": "A1. サイトの検索機能から探してください。" }
+                    ];
+                    changeFaqTab('全体', document.querySelector('.faq-tab[data-target="全体"]'));
+                });
+        }
+
+        function changeFaqTab(targetName, btnElement) {
+            // 1. 全てのタブの「選択中(active)」状態を解除する
+            const tabs = document.querySelectorAll('.faq-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // 2. クリックされたタブを「選択中(active)」にする
+            if (btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            const contentArea = document.getElementById('faqContentArea');
+            contentArea.innerHTML = ''; // 表示エリアを一旦リセットする
+
+            // 3. クリックされたタブ（対象）に一致するデータだけを抽出する
+            const targetData = faqData.filter(item => item["対象"] === targetName);
+
+            if (targetData.length === 0) {
+                contentArea.innerHTML = '<p>この項目のご質問は現在ありません。</p>';
+                return;
+            }
+
+            // 4. 抽出したデータを「カテゴリ」ごとにグループ分けする
+            const groupedData = {};
+            targetData.forEach(item => {
+                const category = item["カテゴリ"] || 'その他';
+                if (!groupedData[category]) {
+                    groupedData[category] = [];
+                }
+                groupedData[category].push(item);
+            });
+
+            // 5. グループ分けしたデータを使ってHTMLの要素（アコーディオン）を作る
+            for (const category in groupedData) {
+                // 大カテゴリの枠組み
+                const detailsCat = document.createElement('details');
+                detailsCat.className = 'faq-category';
+                detailsCat.open = true; // 最初から開いておく設定
+
+                const summaryCat = document.createElement('summary');
+                summaryCat.textContent = category;
+                detailsCat.appendChild(summaryCat);
+
+                // 質問リストを入れる箱
+                const qaListDiv = document.createElement('div');
+                qaListDiv.className = 'faq-qa-list';
+
+                // カテゴリの中の質問を1つずつ作っていく
+                groupedData[category].forEach(qa => {
+                    const detailsQA = document.createElement('details');
+                    detailsQA.className = 'faq-question';
+
+                    const summaryQA = document.createElement('summary');
+                    summaryQA.textContent = qa["質問"];
+                    detailsQA.appendChild(summaryQA);
+
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'faq-answer-content';
+                    answerDiv.textContent = qa["回答"]; // セキュリティのため textContent を使用
+                    detailsQA.appendChild(answerDiv);
+
+                    qaListDiv.appendChild(detailsQA);
+                });
+
+                detailsCat.appendChild(qaListDiv);
+                contentArea.appendChild(detailsCat);
+            }
+        }
+
+        // ページ読み込み時に実行
+        window.addEventListener('DOMContentLoaded', () => {
+            loadClubs();
+            loadSeminars();
+            loadFAQ();
+        });
     </script>
 </body>
 </html>
