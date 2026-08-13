@@ -79,11 +79,30 @@
         .link-list a { color: #0056b3; }
         .link-list a:hover { text-decoration: underline; }
 
+        /* --- ここから差し替え --- */
         @media (max-width: 960px) {
-            .nav-menu { display: none; }
+            .nav-menu { 
+                display: none; /* 初期状態は非表示 */
+                flex-direction: column;
+                position: absolute;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background-color: var(--bg-color);
+                padding: 20px 0;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            }
+            .nav-menu.active {
+                display: flex; /* activeクラスがついたら表示される */
+            }
+            .nav-menu li {
+                text-align: center;
+                margin-bottom: 15px;
+            }
             .hamburger { display: flex; }
             .hero-text-overlay { font-size: 24px; }
         }
+        /* --- ここまで差し替え --- */
     </style>
 </head>
 <body>
@@ -94,7 +113,7 @@
         </div>
         <!-- 01menu.csv で生成されます -->
         <ul class="nav-menu" id="navMenuContainer"></ul>
-        <button class="hamburger" id="hamburgerBtn" onclick="alert('メニューを開きます')">
+        <button class="hamburger" id="hamburgerBtn">
             <span></span><span></span><span></span>
         </button>
     </header>
@@ -124,7 +143,9 @@
         <div id="clubIntroContainer"></div>
 
         <div class="search-controls">
-            <select id="genreSelect"><option value="すべて">種目▼</option></select>
+            <select id="genreSelect">
+                <option value="すべて">種目▼</option>
+            </select>
             <select id="areaSelect">
                 <option value="すべて">活動場所▼</option>
                 <option value="門司区">門司区</option>
@@ -197,7 +218,7 @@
         <button class="btn btn-gray" onclick="alert('問合せフォームへ')">問合せフォームはこちら</button>
     </section>
 
-    <!-- faq.csv (既存のまま) -->
+    <!-- faq.csv -->
     <section id="faq">
         <h2>よくあるご質問</h2>
         <p>地域クラブ活動に関して、よくあるご質問とその答えをまとめています。</p>
@@ -243,7 +264,6 @@
             const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
             for(let i = 1; i < lines.length; i++) {
                 if(!lines[i].trim()) continue;
-                // カンマを含むテキストに対応するための簡易的な正規表現分割
                 const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(item => item.trim().replace(/^"|"$/g, ''));
                 const obj = {};
                 for(let j = 0; j < headers.length; j++) {
@@ -269,8 +289,6 @@
         // ----------------------------------------------------
         // 2. 各セクションの描画関数
         // ----------------------------------------------------
-
-        // ① 01menu.csv の読み込み
         async function loadMenu() {
             const data = await fetchCSV('01menu.csv', [
                 {"メニュー名":"地域クラブ活動とは", "リンク先":"#about"},
@@ -281,12 +299,10 @@
             container.innerHTML = data.map(item => `<li><a href="${item['リンク先']}">${item['メニュー名']}</a></li>`).join('');
         }
 
-        // ② 02head.csv の読み込み
         async function loadHead() {
             const data = await fetchCSV('02head.csv', [
                 {"種類":"本文", "テキスト":"部活動は、学校教育の一環と位置付けられ..."},
-                {"種類":"動画", "テキスト":"▶説明動画を見る（約○分）", "URL":"#", "画像URL":"https://via.placeholder.com/320x180?text=YouTube"},
-                {"種類":"資料", "テキスト":"地域クラブ活動の推進に関する説明資料", "URL":"#"}
+                {"種類":"動画", "テキスト":"▶説明動画を見る", "URL":"#", "画像URL":"https://via.placeholder.com/320x180?text=YouTube"}
             ]);
             const introDiv = document.getElementById('aboutIntroContainer');
             const videoDiv = document.getElementById('aboutVideoContainer');
@@ -303,34 +319,20 @@
             });
         }
 
-        // ③ 03clubinto.csv の読み込み
         async function loadClubIntro() {
-            const data = await fetchCSV('03clubinto.csv', [
-                {"テキスト":"地域クラブ活動は、部活動が担ってきた教育的意義を継承..."},
-                {"テキスト":"※詳細は<a href='#startup' style='color:blue;'>地域クラブを立ち上げる</a>をご覧ください。"}
-            ]);
+            const data = await fetchCSV('03clubinto.csv', [{"テキスト":"地域クラブ活動は..."}]);
             const container = document.getElementById('clubIntroContainer');
-            data.forEach(item => {
-                container.innerHTML += `<p>${item['テキスト']}</p>`;
-            });
+            data.forEach(item => { container.innerHTML += `<p>${item['テキスト']}</p>`; });
         }
 
-        // ④ 04clubstart.csv の読み込み
         async function loadClubStart() {
-            const data = await fetchCSV('04clubstart.csv', [
-                {"種類":"本文", "テキスト":"地域クラブ活動は、部活動が担ってきた..."},
-                {"種類":"まずお読みください", "テキスト":"申請から認定までの流れ", "URL":"#"},
-                {"種類":"認定要綱", "テキスト":"北九州市地域クラブ認定要綱", "URL":"#"},
-                {"種類":"申請書類", "テキスト":"認定申請書", "URL":"#"},
-                {"種類":"申請方法", "テキスト":"①申請書類を持参<br>②電子申請", "URL":""}
-            ]);
+            const data = await fetchCSV('04clubstart.csv', [{"種類":"本文", "テキスト":"地域クラブ活動は..."}]);
             document.getElementById('startupIntroContainer').innerHTML = data.filter(d => d['種類'] === '本文').map(d => `<p>${d['テキスト']}</p>`).join('');
             document.getElementById('startupReadFirstContainer').innerHTML = data.filter(d => d['種類'] === 'まずお読みください').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
             document.getElementById('startupGuidelineContainer').innerHTML = data.filter(d => d['種類'] === '認定要綱').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
             document.getElementById('startupDocsContainer').innerHTML = data.filter(d => d['種類'] === '申請書類').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
             document.getElementById('startupMethodContainer').innerHTML = data.filter(d => d['種類'] === '申請方法').map(d => `<p>${d['テキスト']}</p>`).join('');
             
-            // コーディネーター相談テキスト部分は固定か、CSVの'相談'カテゴリ等で拡張可能です。
             document.getElementById('startupConsultContainer').innerHTML = `
                 <p>北九州市教育委員会では、地域クラブ立ち上げを支援し、学校との調整等を実施する「コーディネーター」を配置しています。</p>
                 <div style="text-align: center; margin-top: 20px;">
@@ -339,84 +341,153 @@
             `;
         }
 
-       // ⑤ その他セクション（説明会、募集、計画、リンク）の簡易読み込み
         async function loadOtherSections() {
-            // 説明会テキスト (05seminar.csv)
             const semData = await fetchCSV('05seminar.csv', [{"種類":"本文", "テキスト":"説明会や研修会を開催しています。"}]);
             document.getElementById('seminarIntroContainer').innerHTML = semData.filter(d => d['種類'] === '本文').map(d => `<p>${d['テキスト']}</p>`).join('');
             
-            // 募集テキスト (06recruit.csv)
-            const recData = await fetchCSV('06recruit.csv', [{"種類":"本文", "テキスト":"連携・協力を募集しています。"}, {"種類":"リンク", "テキスト":"指導者人材バンク", "URL":"#"}]);
+            const recData = await fetchCSV('06recruit.csv', [{"種類":"本文", "テキスト":"連携・協力を募集しています。"}]);
             document.getElementById('recruitIntroContainer').innerHTML = recData.filter(d => d['種類'] === '本文').map(d => `<p>${d['テキスト']}</p>`).join('');
             document.getElementById('recruitLinksContainer').innerHTML = recData.filter(d => d['種類'] === 'リンク').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
 
-            // 計画・会議等テキスト (07plan.csv)
             const planData = await fetchCSV('07plan.csv', [{"種類":"本文", "テキスト":"計画・会議等の情報を掲載しています。"}]);
             document.getElementById('planIntroContainer').innerHTML = planData.filter(d => d['種類'] === '本文').map(d => `<p>${d['テキスト']}</p>`).join('');
             document.getElementById('planDocsContainer').innerHTML = planData.filter(d => d['種類'] === '計画').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
             document.getElementById('planReferenceContainer').innerHTML = planData.filter(d => d['種類'] === '参考').map(d => `${d['テキスト']}<br>`).join('');
             document.getElementById('planMeetingContainer').innerHTML = planData.filter(d => d['種類'] === '会議').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
 
-            // 関連リンク (08link.csv)
             const linkData = await fetchCSV('08link.csv', [{"テキスト":"北九州市ホームページ", "URL":"#"}]);
             document.getElementById('relatedLinksContainer').innerHTML = linkData.map(d => `<li><a href="${d['URL']}">${d['テキスト']}</a></li>`).join('');
         }
 
         // ----------------------------------------------------
-        // 既存の動的機能（クラブ検索、説明会テーブル、FAQ）
+        // 3. 検索機能・もっとみる機能の処理
         // ----------------------------------------------------
         let allClubsData = [];
+        let currentDisplayData = []; // 現在画面に表示する対象のデータ
+        let isExpanded = false;      // 「もっとみる」を展開しているか
+
         async function loadClubs() {
-            allClubsData = await fetchCSV('allclub.csv', [{"クラブ名":"ダミークラブ", "種目等":"サッカー", "主な活動場所":"小倉北区"}]);
+            allClubsData = await fetchCSV('allclub.csv', [{"地域クラブ名":"ダミークラブ", "種目・分野":"サッカー", "活動エリア（区）":"小倉北区"}]);
+            
             const select = document.getElementById('genreSelect');
-            new Set(allClubsData.map(c => c["種目等"]).filter(Boolean)).forEach(genre => {
-                const opt = document.createElement('option'); opt.value = opt.textContent = genre; select.appendChild(opt);
+            new Set(allClubsData.map(c => c["種目・分野"]).filter(Boolean)).forEach(genre => {
+                const opt = document.createElement('option'); 
+                opt.value = opt.textContent = genre; 
+                select.appendChild(opt);
             });
-            renderClubCards(allClubsData);
+            
+            currentDisplayData = allClubsData;
+            isExpanded = false;
+            renderClubCards();
         }
 
         function filterClubs() {
             const genre = document.getElementById('genreSelect').value;
             const area = document.getElementById('areaSelect').value;
-            const filtered = allClubsData.filter(c => (genre === "すべて" || c["種目等"] === genre) && (area === "すべて" || (c["主な活動場所"] && c["主な活動場所"].includes(area))));
-            renderClubCards(filtered);
+            
+            currentDisplayData = allClubsData.filter(c => 
+                (genre === "すべて" || c["種目・分野"] === genre) && 
+                (area === "すべて" || (c["活動エリア（区）"] && c["活動エリア（区）"].includes(area)))
+            );
+            
+            isExpanded = false;
+            renderClubCards();
         }
 
-       // 修正後のカード描画関数
-        function renderClubCards(data) {
+        // --- 修正版：カードの描画処理 ---
+        function renderClubCards() {
             const container = document.getElementById('clubCardContainer');
             container.innerHTML = '';
             
-            if(data.length === 0) {
+            if(currentDisplayData.length === 0) {
                 container.innerHTML = '<p>該当するクラブが見つかりませんでした。</p>';
                 return;
             }
 
-            data.forEach(club => {
-                const card = document.createElement('div');
-                card.className = 'club-card';
-                
-                // リンクがある場合はリンクを表示
-                const linkUrl = club["ホームページ・SNS等（任意）"];
-                const hpLink = linkUrl 
-                    ? `<a href="${linkUrl}" target="_blank" style="color:blue;">詳細ページを見る</a>` 
-                    : 'ホームページなし';
+            // 表示するデータの件数を決定（展開されていなければ最大6件）
+            const displayLimit = 6;
+            const dataToRender = isExpanded ? currentDisplayData : currentDisplayData.slice(0, displayLimit);
 
-                card.innerHTML = `
-                    <div class="club-badge">${club["種目・分野"] || '種目不明'}</div>
-                    <div class="club-card-title">${club["地域クラブ名"] || '名称不明'}</div>
-                    <div class="club-info"><strong>活動エリア:</strong> ${club["活動エリア（区）"] || '-'}</div>
-                    <div class="club-info"><strong>活動場所:</strong> ${club["活動場所"] || '-'}</div>
-                    <div class="club-info"><strong>日時:</strong> ${club["活動日時"] || '-'}</div>
-                    <div class="club-info"><strong>費用:</strong> ${club["費用（月会費、その他費用）"] || '-'}</div>
-                    <div class="club-info">${hpLink}</div>
-                    <div class="club-action">
-                        <button class="btn btn-gray" style="padding: 8px 15px; font-size: 13px;" onclick="alert('${club["地域クラブ名"]} へ問合せします')">このクラブに問合せ</button>
+            const cardsHTML = dataToRender.map(club => {
+                // 1. バッジの作成（データがある場合のみ作成して横に並べる）
+                let badgesHtml = '';
+                if (club["活動エリア（区）"]) {
+                    badgesHtml += `<span class="club-badge" style="margin-bottom:0;">${club["活動エリア（区）"]}</span> `;
+                }
+                if (club["種目・分野"]) {
+                    badgesHtml += `<span class="club-badge" style="margin-bottom:0;">${club["種目・分野"]}</span>`;
+                }
+
+                // 2. 詳細リンクの作成（URLがある場合のみ）
+                const linkUrl = club["ホームページ・SNS等（任意）"];
+                const hpLink = linkUrl ? `<div class="club-info"><a href="${linkUrl}" target="_blank" style="color:blue;">詳細ページを見る</a></div>` : '';
+
+                // 3. 各項目の作成（データがある場合のみHTML要素を作成する）
+                const areaHtml = club["活動エリア（区）"] ? `<div class="club-info"><strong>活動エリア:</strong> ${club["活動エリア（区）"]}</div>` : '';
+                const placeHtml = club["活動場所"] ? `<div class="club-info"><strong>活動場所:</strong> ${club["活動場所"]}</div>` : '';
+                const timeHtml = club["活動日時"] ? `<div class="club-info"><strong>日時:</strong> ${club["活動日時"]}</div>` : '';
+                const feeHtml = club["費用（月会費、その他費用）"] ? `<div class="club-info"><strong>費用:</strong> ${club["費用（月会費、その他費用）"]}</div>` : '';
+
+                // 4. 上記で作成した要素を合体させてカードのHTMLを完成させる
+                return `
+                    <div class="club-card">
+                        <!-- バッジを並べる領域 -->
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px;">
+                            ${badgesHtml}
+                        </div>
+                        
+                        <div class="club-card-title">${club["地域クラブ名"] || '名称不明'}</div>
+                        
+                        <!-- データがある項目だけがここに差し込まれます -->
+                        ${areaHtml}
+                        ${placeHtml}
+                        ${timeHtml}
+                        ${feeHtml}
+                        ${hpLink}
+                        
+                        <div class="club-action">
+                            <button class="btn btn-gray" style="padding: 8px 15px; font-size: 13px;" onclick="alert('${club["地域クラブ名"]} へ問合せします')">このクラブに問合せ</button>
+                        </div>
                     </div>
                 `;
-                container.appendChild(card);
-            });
+            }).join('');
+
+            // カードを画面に追加
+            container.innerHTML = cardsHTML;
+
+            // 「もっとみる / とじる」ボタンの追加処理（以前のまま）
+            if (currentDisplayData.length > displayLimit) {
+                const btnContainer = document.createElement('div');
+                btnContainer.style.textAlign = 'center';
+                btnContainer.style.gridColumn = '1 / -1';
+                btnContainer.style.marginTop = '20px';
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'btn btn-primary';
+                
+                if (!isExpanded) {
+                    toggleBtn.textContent = 'もっとみる';
+                    toggleBtn.onclick = function() {
+                        isExpanded = true;
+                        renderClubCards(); 
+                    };
+                } else {
+                    toggleBtn.textContent = 'とじる';
+                    toggleBtn.onclick = function() {
+                        isExpanded = false;
+                        renderClubCards();
+                        document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
+                    };
+                }
+
+                btnContainer.appendChild(toggleBtn);
+                container.appendChild(btnContainer);
+            }
         }
+
+        // ----------------------------------------------------
+        // 4. 説明会・FAQの処理
+        // ----------------------------------------------------
         async function loadSeminars() {
             const data = await fetchCSV('setumei.csv', [{"種別":"地域説明会", "日時":"未定", "会場":"未定", "参加申し込みへのリンク":""}]);
             document.getElementById('seminarTableBody').innerHTML = data.map(item => `
@@ -429,10 +500,9 @@
             `).join('');
         }
 
-        // FAQ機能（既存ロジックを短縮化）
         let faqData = [];
         async function loadFAQ() {
-            faqData = await fetchCSV('faq.csv', [{"対象":"全体", "カテゴリ":"一般", "質問":"Q. テスト", "回答":"A. テスト"}]);
+            faqData = await fetchCSV('faq.csv', [{"対象":"全体", "カテゴリ":"一般", "質問":"Q. 準備中", "回答":"A. 準備中"}]);
             changeFaqTab('全体', document.querySelector('.faq-tab[data-target="全体"]'));
         }
 
@@ -465,8 +535,25 @@
             `).join('');
         }
 
-        // ページ読み込み時に全データを取得・描画
+        // ----------------------------------------------------
+        // 5. ページ読み込み時の初期設定
+        // ----------------------------------------------------
         window.addEventListener('DOMContentLoaded', () => {
+            // スマホ用ハンバーガーメニューの開閉設定
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const navMenu = document.getElementById('navMenuContainer');
+            
+            hamburgerBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+            });
+            // メニュー内のリンクをクリックしたら自動でメニューを閉じる
+            navMenu.addEventListener('click', (e) => {
+                if(e.target.tagName === 'A') {
+                    navMenu.classList.remove('active');
+                }
+            });
+
+            // すべてのデータを読み込む
             loadMenu();
             loadHead();
             loadClubIntro();
