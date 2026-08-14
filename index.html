@@ -102,7 +102,61 @@
             .hamburger { display: flex; }
             .hero-text-overlay { font-size: 24px; }
         }
-        /* --- ここまで差し替え --- */
+        /* --- モーダル（ポップアップ）用のスタイル --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* 初期状態は非表示 */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* ヘッダーより上に表示 */
+        }
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh; /* 画面の高さの80%を最大とする */
+            overflow-y: auto; /* はみ出た場合はスクロール可能にする */
+            border-radius: 8px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .modal-close-btn:hover {
+            color: #333;
+        }
+        .modal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .modal-table th {
+            width: 35%;
+            background-color: var(--gray-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+        }
+        .modal-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -249,9 +303,21 @@
         <ul class="link-list" id="relatedLinksContainer"></ul>
     </section>
 
+<!-- 既存のフッター -->
     <footer style="background-color: #111; color: #fff; text-align: center; padding: 30px; margin-top: 40px; font-size: 13px;">
         <p>&copy; 2026 北九州コミュニティチャレンジ All Rights Reserved.</p>
     </footer>
+
+    <!-- 👇 ここから追加：クラブ詳細のポップアップ（モーダル） -->
+    <div id="clubModal" class="modal-overlay" onclick="closeClubModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeClubModal()">×</button>
+            <div id="clubModalBody">
+                <!-- ここにJavaScriptで詳細情報が挿入されます -->
+            </div>
+        </div>
+    </div>
+    <!-- 👆 ここまで追加 -->
 
     <!-- スクリプト領域 -->
     <script>
@@ -360,14 +426,19 @@
         }
 
         // ----------------------------------------------------
-        // 3. 検索機能・もっとみる機能の処理
+        // 3. 検索機能・ポップアップ・もっとみる機能の処理
         // ----------------------------------------------------
         let allClubsData = [];
-        let currentDisplayData = []; // 現在画面に表示する対象のデータ
-        let isExpanded = false;      // 「もっとみる」を展開しているか
+        let currentDisplayData = []; 
+        let isExpanded = false;      
 
         async function loadClubs() {
             allClubsData = await fetchCSV('allclub.csv', [{"地域クラブ名":"ダミークラブ", "種目・分野":"サッカー", "活動エリア（区）":"小倉北区"}]);
+            
+            // ポップアップを開くために、各データに番号（インデックス）を振っておく
+            allClubsData.forEach((club, index) => {
+                club._originalIndex = index;
+            });
             
             const select = document.getElementById('genreSelect');
             new Set(allClubsData.map(c => c["種目・分野"]).filter(Boolean)).forEach(genre => {
@@ -404,12 +475,11 @@
                 return;
             }
 
-            // 表示するデータの件数を決定（展開されていなければ最大6件）
             const displayLimit = 6;
             const dataToRender = isExpanded ? currentDisplayData : currentDisplayData.slice(0, displayLimit);
 
             const cardsHTML = dataToRender.map(club => {
-                // 1. バッジの作成（データがある場合のみ作成して横に並べる）
+                // 1. バッジの作成
                 let badgesHtml = '';
                 if (club["活動エリア（区）"]) {
                     badgesHtml += `<span class="club-badge" style="margin-bottom:0;">${club["活動エリア（区）"]}</span> `;
@@ -418,33 +488,28 @@
                     badgesHtml += `<span class="club-badge" style="margin-bottom:0;">${club["種目・分野"]}</span>`;
                 }
 
-                // 2. 詳細リンクの作成（URLがある場合のみ）
-                const linkUrl = club["ホームページ・SNS等（任意）"];
-                const hpLink = linkUrl ? `<div class="club-info"><a href="${linkUrl}" target="_blank" style="color:blue;">詳細ページを見る</a></div>` : '';
-
-                // 3. 各項目の作成（データがある場合のみHTML要素を作成する）
+                // 2. 各項目の作成（空欄は非表示＋「種目・分野」の追加）
+                const genreHtml = club["種目・分野"] ? `<div class="club-info"><strong>種目・分野:</strong> ${club["種目・分野"]}</div>` : '';
                 const areaHtml = club["活動エリア（区）"] ? `<div class="club-info"><strong>活動エリア:</strong> ${club["活動エリア（区）"]}</div>` : '';
                 const placeHtml = club["活動場所"] ? `<div class="club-info"><strong>活動場所:</strong> ${club["活動場所"]}</div>` : '';
                 const timeHtml = club["活動日時"] ? `<div class="club-info"><strong>日時:</strong> ${club["活動日時"]}</div>` : '';
                 const feeHtml = club["費用（月会費、その他費用）"] ? `<div class="club-info"><strong>費用:</strong> ${club["費用（月会費、その他費用）"]}</div>` : '';
 
-                // 4. 上記で作成した要素を合体させてカードのHTMLを完成させる
+                // 3. 詳細ページ（ポップアップ）を開くリンク
+                const detailLink = `<div class="club-info"><a href="javascript:void(0);" onclick="openClubModal(${club._originalIndex})" style="color:blue; text-decoration:underline;">詳細ページを見る</a></div>`;
+
                 return `
                     <div class="club-card">
-                        <!-- バッジを並べる領域 -->
                         <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px;">
                             ${badgesHtml}
                         </div>
-                        
                         <div class="club-card-title">${club["地域クラブ名"] || '名称不明'}</div>
-                        
-                        <!-- データがある項目だけがここに差し込まれます -->
+                        ${genreHtml}
                         ${areaHtml}
                         ${placeHtml}
                         ${timeHtml}
                         ${feeHtml}
-                        ${hpLink}
-                        
+                        ${detailLink}
                         <div class="club-action">
                             <button class="btn btn-gray" style="padding: 8px 15px; font-size: 13px;" onclick="alert('${club["地域クラブ名"]} へ問合せします')">このクラブに問合せ</button>
                         </div>
@@ -452,10 +517,8 @@
                 `;
             }).join('');
 
-            // カードを画面に追加
             container.innerHTML = cardsHTML;
 
-            // 「もっとみる / とじる」ボタンの追加処理（以前のまま）
             if (currentDisplayData.length > displayLimit) {
                 const btnContainer = document.createElement('div');
                 btnContainer.style.textAlign = 'center';
@@ -479,10 +542,63 @@
                         document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
                     };
                 }
-
                 btnContainer.appendChild(toggleBtn);
                 container.appendChild(btnContainer);
             }
+        }
+
+        // --- ポップアップ（モーダル）を開閉する機能 ---
+        function openClubModal(index) {
+            const club = allClubsData[index];
+            if (!club) return;
+
+            const modalBody = document.getElementById('clubModalBody');
+            
+            // CSVの全項目リスト
+            const allKeys = [
+                "地域クラブ名", "地域クラブ名（フリガナ）", "種目・分野", "活動エリア（区）", 
+                "活動場所", "活動日時", "募集対象・性別", "費用（月会費、その他費用）", 
+                "活動方針等（２つまで選択可）", "大会参加の有無", "ホームページ・SNS等（任意）", 
+                "代表者氏名（任意）", "連絡先（任意）", "メール（任意）", "入会方法（いずれか選択）", "備考"
+            ];
+
+            let tableRows = '';
+            // データが空でない項目だけを表の行として追加する
+            allKeys.forEach(key => {
+                let value = club[key];
+                if (value && value.trim() !== "") {
+                    // ホームページやメールアドレスだった場合は、クリックできるリンクに変換
+                    if (key === "ホームページ・SNS等（任意）") {
+                        value = `<a href="${value}" target="_blank" style="color: blue; text-decoration: underline;">リンクを開く</a>`;
+                    } else if (key === "メール（任意）") {
+                        value = `<a href="mailto:${value}" style="color: blue; text-decoration: underline;">${value}</a>`;
+                    }
+                    
+                    tableRows += `<tr><th>${key}</th><td>${value}</td></tr>`;
+                }
+            });
+
+            // ポップアップの中にHTMLを流し込む
+            modalBody.innerHTML = `
+                <h3 style="margin-top:0; color:var(--main-color);">${club["地域クラブ名"] || 'クラブ詳細'}</h3>
+                <table class="modal-table">
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            `;
+
+            // ポップアップを表示する
+            document.getElementById('clubModal').style.display = 'flex';
+        }
+
+        function closeClubModal(event) {
+            // イベントがある（背景をクリックした）場合、背景以外なら閉じない
+            if (event && event.target.id !== 'clubModal') {
+                return;
+            }
+            // ポップアップを非表示にする
+            document.getElementById('clubModal').style.display = 'none';
         }
 
         // ----------------------------------------------------
