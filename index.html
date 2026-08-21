@@ -325,19 +325,59 @@
         // 1. 汎用的なCSV読み込み機能
         // ----------------------------------------------------
         function parseCSV(csv) {
-            const lines = csv.split('\n');
             const result = [];
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-            for(let i = 1; i < lines.length; i++) {
-                if(!lines[i].trim()) continue;
-                const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(item => item.trim().replace(/^"|"$/g, ''));
-                const obj = {};
-                for(let j = 0; j < headers.length; j++) {
-                    obj[headers[j]] = currentline[j] || '';
+            let currentLine = [];
+            let currentCell = '';
+            let insideQuotes = false;
+
+            // 1文字ずつ確認して、改行やカンマを正確に切り分けます
+            for (let i = 0; i < csv.length; i++) {
+                const char = csv[i];
+                const nextChar = csv[i + 1];
+
+                if (char === '"') {
+                    // ダブルクォーテーションの処理
+                    if (insideQuotes && nextChar === '"') {
+                        currentCell += '"';
+                        i++; // エスケープされた記号はスキップ
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+                } else if (char === ',' && !insideQuotes) {
+                    // カンマで区切る
+                    currentLine.push(currentCell);
+                    currentCell = '';
+                } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+                    // 行の終わり（改行）
+                    if (char === '\r' && nextChar === '\n') i++; // Windowsの改行に対応
+                    currentLine.push(currentCell);
+                    if (currentLine.join('').trim() !== '') {
+                        result.push(currentLine);
+                    }
+                    currentLine = [];
+                    currentCell = '';
+                } else {
+                    currentCell += char;
                 }
-                result.push(obj);
             }
-            return result;
+            if (currentCell !== '' || currentLine.length > 0) {
+                currentLine.push(currentCell);
+                result.push(currentLine);
+            }
+
+            if (result.length < 2) return [];
+            
+            // 見出し（1行目）とデータ（2行目以降）を結びつけます
+            const headers = result[0].map(h => h.trim());
+            const data = [];
+            for (let i = 1; i < result.length; i++) {
+                const obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    obj[headers[j]] = result[i][j] ? result[i][j].trim() : '';
+                }
+                data.push(obj);
+            }
+            return data;
         }
 
         async function fetchCSV(filename, defaultData) {
@@ -558,7 +598,7 @@
             const allKeys = [
                 "地域クラブ名", "地域クラブ名（フリガナ）", "種目・分野", "活動エリア（区）", 
                 "活動場所", "活動日時", "募集対象・性別", "費用（月会費、その他費用）", 
-                "活動方針等", "大会参加の有無", "ホームページ・SNS等（任意）", 
+                "活動方針等（２つまで選択可）", "大会参加の有無", "ホームページ・SNS等（任意）", 
                 "代表者氏名（任意）", "連絡先（任意）", "メール（任意）", "入会方法（いずれか選択）", "備考"
             ];
 
@@ -618,14 +658,26 @@
 
         let faqData = [];
         async function loadFAQ() {
-            faqData = await fetchCSV('faq.csv', [{"対象":"全体", "カテゴリ":"一般", "質問":"Q. 準備中", "回答":"A. 準備中"}]);
+            // ダミーデータを新しいCSVの形に合わせて少し変更しています
+            faqData = await fetchCSV('faq.csv', [{"カテゴリ":"一般", "質問":"Q. 準備中", "回答":"A. 準備中", "生徒の皆さん向け":"●"}]);
             changeFaqTab('全体', document.querySelector('.faq-tab[data-target="全体"]'));
         }
 
         function changeFaqTab(targetName, btnElement) {
+            // タブの見た目を切り替える処理
             document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
-            const targetData = faqData.filter(i => i["対象"] === targetName);
+            
+            // 👇 ここからが新しい絞り込みの仕組みです
+            let targetData = [];
+            if (targetName === '全体') {
+                targetData = faqData; // 「全体」が選ばれたら、すべての質問をそのまま使う
+            } else {
+                // それ以外のタブが選ばれたら、そのタブの名前の列に「●」があるデータだけを残す
+                targetData = faqData.filter(item => item[targetName] === '●');
+            }
+            // 👆 新しい仕組みはここまで
+            
             const container = document.getElementById('faqContentArea');
             if(!targetData.length) return container.innerHTML = '<p>現在ありません。</p>';
             
@@ -637,7 +689,7 @@
             }, {});
 
             container.innerHTML = Object.entries(grouped).map(([category, qas]) => `
-                <details class="faq-category" open>
+                <details class="faq-category">
                     <summary>${category}</summary>
                     <div class="faq-qa-list">
                         ${qas.map(qa => `
