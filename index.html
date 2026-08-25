@@ -598,7 +598,7 @@
             const allKeys = [
                 "地域クラブ名", "地域クラブ名（フリガナ）", "種目・分野", "活動エリア（区）", 
                 "活動場所", "活動日時", "募集対象・性別", "費用（月会費、その他費用）", 
-                "活動方針等", "中体連・中文連大会参加の有無", "ホームページ・SNS等（任意）", 
+                "活動方針等（２つまで選択可）", "大会参加の有無", "ホームページ・SNS等（任意）", 
                 "代表者氏名（任意）", "連絡先（任意）", "メール（任意）", "入会方法（いずれか選択）", "備考"
             ];
 
@@ -668,17 +668,13 @@
             document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
             
-            // 👇 ここからが新しい絞り込みの仕組みです
-            let targetData = [];
-            if (targetName === '全体') {
-                targetData = faqData; // 「全体」が選ばれたら、すべての質問をそのまま使う
-            } else {
-                // それ以外のタブが選ばれたら、そのタブの名前の列に「●」があるデータだけを残す
-                targetData = faqData.filter(item => item[targetName] === '●');
-            }
-            // 👆 新しい仕組みはここまで
+            // 👇 ここをシンプルに修正しました！
+            // どのタブが押されても、そのタブの名前（targetName）と同じ列に「●」があるデータだけを抜き出します
+            const targetData = faqData.filter(item => item[targetName] === '●');
+            // 👆 修正箇所はこれだけです
             
             const container = document.getElementById('faqContentArea');
+            // もし「●」が1つもない場合は、以下のメッセージを表示します
             if(!targetData.length) return container.innerHTML = '<p>現在ありません。</p>';
             
             const grouped = targetData.reduce((acc, item) => {
