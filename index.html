@@ -79,10 +79,9 @@
         .link-list a { color: #0056b3; }
         .link-list a:hover { text-decoration: underline; }
 
-        /* --- ここから差し替え --- */
         @media (max-width: 960px) {
             .nav-menu { 
-                display: none; /* 初期状態は非表示 */
+                display: none;
                 flex-direction: column;
                 position: absolute;
                 top: 80px;
@@ -93,7 +92,7 @@
                 box-shadow: 0 5px 10px rgba(0,0,0,0.1);
             }
             .nav-menu.active {
-                display: flex; /* activeクラスがついたら表示される */
+                display: flex;
             }
             .nav-menu li {
                 text-align: center;
@@ -102,7 +101,8 @@
             .hamburger { display: flex; }
             .hero-text-overlay { font-size: 24px; }
         }
-        /* --- モーダル（ポップアップ）用のスタイル --- */
+        
+        /* モーダル（ポップアップ）用のスタイル */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -110,17 +110,17 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            display: none; /* 初期状態は非表示 */
+            display: none;
             justify-content: center;
             align-items: center;
-            z-index: 2000; /* ヘッダーより上に表示 */
+            z-index: 2000;
         }
         .modal-content {
             background-color: #fff;
             width: 90%;
             max-width: 600px;
-            max-height: 80vh; /* 画面の高さの80%を最大とする */
-            overflow-y: auto; /* はみ出た場合はスクロール可能にする */
+            max-height: 80vh;
+            overflow-y: auto;
             border-radius: 8px;
             padding: 30px;
             position: relative;
@@ -157,6 +157,11 @@
             border: 1px solid var(--border-color);
             padding: 10px;
         }
+        
+        /* 新着情報用のスタイル調整 */
+        .news-link { color: var(--text-color); display: flex; align-items: center; text-decoration: none; }
+        .news-link:hover span.news-text { text-decoration: underline; color: var(--main-color); }
+        .news-badge { background-color: var(--main-color); color: #fff; margin-right: 15px; min-width: 80px; text-align: center; }
     </style>
 </head>
 <body>
@@ -190,6 +195,15 @@
             </div>
         </div>
     </section>
+
+    <!-- 👇 追加：news.csv で生成されます -->
+    <section id="news">
+        <h2>新着情報</h2>
+        <ul class="link-list" id="newsContainer">
+            <p>データを読み込んでいます...</p>
+        </ul>
+    </section>
+    <!-- 👆 ここまで追加 -->
 
     <!-- 03clubinto.csv と allclub.csv で生成されます -->
     <section id="search">
@@ -303,12 +317,12 @@
         <ul class="link-list" id="relatedLinksContainer"></ul>
     </section>
 
-<!-- 既存のフッター -->
+    <!-- 既存のフッター -->
     <footer style="background-color: #111; color: #fff; text-align: center; padding: 30px; margin-top: 40px; font-size: 13px;">
         <p style="margin-bottom: 10px;">北九州市教育委員会総務企画部企画調整課 電話番号 093-582-2357</p>
     </footer>
 
-    <!-- 👇 ここから追加：クラブ詳細のポップアップ（モーダル） -->
+    <!-- クラブ詳細のポップアップ（モーダル） -->
     <div id="clubModal" class="modal-overlay" onclick="closeClubModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close-btn" onclick="closeClubModal()">×</button>
@@ -317,7 +331,6 @@
             </div>
         </div>
     </div>
-    <!-- 👆 ここまで追加 -->
 
     <!-- スクリプト領域 -->
     <script>
@@ -330,26 +343,22 @@
             let currentCell = '';
             let insideQuotes = false;
 
-            // 1文字ずつ確認して、改行やカンマを正確に切り分けます
             for (let i = 0; i < csv.length; i++) {
                 const char = csv[i];
                 const nextChar = csv[i + 1];
 
                 if (char === '"') {
-                    // ダブルクォーテーションの処理
                     if (insideQuotes && nextChar === '"') {
                         currentCell += '"';
-                        i++; // エスケープされた記号はスキップ
+                        i++;
                     } else {
                         insideQuotes = !insideQuotes;
                     }
                 } else if (char === ',' && !insideQuotes) {
-                    // カンマで区切る
                     currentLine.push(currentCell);
                     currentCell = '';
                 } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-                    // 行の終わり（改行）
-                    if (char === '\r' && nextChar === '\n') i++; // Windowsの改行に対応
+                    if (char === '\r' && nextChar === '\n') i++;
                     currentLine.push(currentCell);
                     if (currentLine.join('').trim() !== '') {
                         result.push(currentLine);
@@ -367,7 +376,6 @@
 
             if (result.length < 2) return [];
             
-            // 見出し（1行目）とデータ（2行目以降）を結びつけます
             const headers = result[0].map(h => h.trim());
             const data = [];
             for (let i = 1; i < result.length; i++) {
@@ -425,6 +433,34 @@
             });
         }
 
+        // 👇 追加：新着情報の読み込み関数
+        async function loadNews() {
+            const data = await fetchCSV('news.csv', [
+                {"項目": "お知らせ", "内容": "令和6年度の地域クラブ活動がスタートしました。", "リンク先": "#about"},
+                {"項目": "募集", "内容": "新しいクラブの登録申請を受け付けています。", "リンク先": "#startup"}
+            ]);
+            
+            const container = document.getElementById('newsContainer');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<li>現在、新着情報はありません。</li>';
+                return;
+            }
+
+            container.innerHTML = data.map(item => {
+                const badge = item['項目'] ? `<span class="club-badge news-badge">${item['項目']}</span>` : '';
+                const text = item['内容'] || '';
+                const link = item['リンク先'] || '';
+
+                if (link) {
+                    return `<li style="margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px;"><a href="${link}" class="news-link">${badge} <span class="news-text">${text}</span></a></li>`;
+                } else {
+                    return `<li style="margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; display: flex; align-items: center;">${badge} <span>${text}</span></li>`;
+                }
+            }).join('');
+        }
+        // 👆 ここまで追加
+
         async function loadClubIntro() {
             const data = await fetchCSV('03clubinto.csv', [{"テキスト":"地域クラブ活動は..."}]);
             const container = document.getElementById('clubIntroContainer');
@@ -458,7 +494,13 @@
             const planData = await fetchCSV('07plan.csv', [{"種類":"本文", "テキスト":"計画・会議等の情報を掲載しています。"}]);
             document.getElementById('planIntroContainer').innerHTML = planData.filter(d => d['種類'] === '本文').map(d => `<p>${d['テキスト']}</p>`).join('');
             document.getElementById('planDocsContainer').innerHTML = planData.filter(d => d['種類'] === '計画').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
-            document.getElementById('planReferenceContainer').innerHTML = planData.filter(d => d['種類'] === '参考').map(d => `${d['テキスト']}<br>`).join('');
+            document.getElementById('planReferenceContainer').innerHTML = planData.filter(d => d['種類'] === '参考').map(d => {
+                if (d['URL'] && d['URL'].trim() !== '') {
+                    return `<a href="${d['URL']}" target="_blank" style="text-decoration: underline; cursor: pointer;">${d['テキスト']}</a><br>`;
+                } else {
+                    return `${d['テキスト']}<br>`;
+                }
+            }).join('');
             document.getElementById('planMeetingContainer').innerHTML = planData.filter(d => d['種類'] === '会議').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
 
             const linkData = await fetchCSV('08link.csv', [{"テキスト":"北九州市ホームページ", "URL":"#"}]);
@@ -475,7 +517,6 @@
         async function loadClubs() {
             allClubsData = await fetchCSV('allclub.csv', [{"地域クラブ名":"ダミークラブ", "種目・分野":"サッカー", "活動エリア（区）":"小倉北区"}]);
             
-            // ポップアップを開くために、各データに番号（インデックス）を振っておく
             allClubsData.forEach((club, index) => {
                 club._originalIndex = index;
             });
@@ -505,7 +546,6 @@
             renderClubCards();
         }
 
-        // --- 修正版：カードの描画処理 ---
         function renderClubCards() {
             const container = document.getElementById('clubCardContainer');
             container.innerHTML = '';
@@ -519,7 +559,6 @@
             const dataToRender = isExpanded ? currentDisplayData : currentDisplayData.slice(0, displayLimit);
 
             const cardsHTML = dataToRender.map(club => {
-                // 1. バッジの作成
                 let badgesHtml = '';
                 if (club["活動エリア（区）"]) {
                     badgesHtml += `<span class="club-badge" style="margin-bottom:0;">${club["活動エリア（区）"]}</span> `;
@@ -528,14 +567,12 @@
                     badgesHtml += `<span class="club-badge" style="margin-bottom:0;">${club["種目・分野"]}</span>`;
                 }
 
-                // 2. 各項目の作成（空欄は非表示＋「種目・分野」の追加）
                 const genreHtml = club["種目・分野"] ? `<div class="club-info"><strong>種目・分野:</strong> ${club["種目・分野"]}</div>` : '';
                 const areaHtml = club["活動エリア（区）"] ? `<div class="club-info"><strong>活動エリア:</strong> ${club["活動エリア（区）"]}</div>` : '';
                 const placeHtml = club["活動場所"] ? `<div class="club-info"><strong>活動場所:</strong> ${club["活動場所"]}</div>` : '';
                 const timeHtml = club["活動日時"] ? `<div class="club-info"><strong>日時:</strong> ${club["活動日時"]}</div>` : '';
                 const feeHtml = club["費用（月会費、その他費用）"] ? `<div class="club-info"><strong>費用:</strong> ${club["費用（月会費、その他費用）"]}</div>` : '';
 
-                // 3. 詳細ページ（ポップアップ）を開くリンク
                 const detailLink = `<div class="club-info"><a href="javascript:void(0);" onclick="openClubModal(${club._originalIndex})" style="color:blue; text-decoration:underline;">詳細ページを見る</a></div>`;
 
                 return `
@@ -587,14 +624,12 @@
             }
         }
 
-        // --- ポップアップ（モーダル）を開閉する機能 ---
         function openClubModal(index) {
             const club = allClubsData[index];
             if (!club) return;
 
             const modalBody = document.getElementById('clubModalBody');
             
-            // CSVの全項目リスト
             const allKeys = [
                 "地域クラブ名", "地域クラブ名（フリガナ）", "種目・分野", "活動エリア（区）", 
                 "活動場所", "活動日時", "募集対象・性別", "費用（月会費、その他費用）", 
@@ -603,11 +638,9 @@
             ];
 
             let tableRows = '';
-            // データが空でない項目だけを表の行として追加する
             allKeys.forEach(key => {
                 let value = club[key];
                 if (value && value.trim() !== "") {
-                    // ホームページやメールアドレスだった場合は、クリックできるリンクに変換
                     if (key === "ホームページ・SNS等（任意）") {
                         value = `<a href="${value}" target="_blank" style="color: blue; text-decoration: underline;">リンクを開く</a>`;
                     } else if (key === "メール（任意）") {
@@ -618,7 +651,6 @@
                 }
             });
 
-            // ポップアップの中にHTMLを流し込む
             modalBody.innerHTML = `
                 <h3 style="margin-top:0; color:var(--main-color);">${club["地域クラブ名"] || 'クラブ詳細'}</h3>
                 <table class="modal-table">
@@ -628,16 +660,13 @@
                 </table>
             `;
 
-            // ポップアップを表示する
             document.getElementById('clubModal').style.display = 'flex';
         }
 
         function closeClubModal(event) {
-            // イベントがある（背景をクリックした）場合、背景以外なら閉じない
             if (event && event.target.id !== 'clubModal') {
                 return;
             }
-            // ポップアップを非表示にする
             document.getElementById('clubModal').style.display = 'none';
         }
 
@@ -658,23 +687,17 @@
 
         let faqData = [];
         async function loadFAQ() {
-            // ダミーデータを新しいCSVの形に合わせて少し変更しています
             faqData = await fetchCSV('faq.csv', [{"カテゴリ":"一般", "質問":"Q. 準備中", "回答":"A. 準備中", "生徒の皆さん向け":"●"}]);
             changeFaqTab('全体', document.querySelector('.faq-tab[data-target="全体"]'));
         }
 
         function changeFaqTab(targetName, btnElement) {
-            // タブの見た目を切り替える処理
             document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
             
-            // 👇 ここをシンプルに修正しました！
-            // どのタブが押されても、そのタブの名前（targetName）と同じ列に「●」があるデータだけを抜き出します
             const targetData = faqData.filter(item => item[targetName] === '●');
-            // 👆 修正箇所はこれだけです
             
             const container = document.getElementById('faqContentArea');
-            // もし「●」が1つもない場合は、以下のメッセージを表示します
             if(!targetData.length) return container.innerHTML = '<p>現在ありません。</p>';
             
             const grouped = targetData.reduce((acc, item) => {
@@ -703,23 +726,22 @@
         // 5. ページ読み込み時の初期設定
         // ----------------------------------------------------
         window.addEventListener('DOMContentLoaded', () => {
-            // スマホ用ハンバーガーメニューの開閉設定
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const navMenu = document.getElementById('navMenuContainer');
             
             hamburgerBtn.addEventListener('click', () => {
                 navMenu.classList.toggle('active');
             });
-            // メニュー内のリンクをクリックしたら自動でメニューを閉じる
             navMenu.addEventListener('click', (e) => {
                 if(e.target.tagName === 'A') {
                     navMenu.classList.remove('active');
                 }
             });
 
-            // すべてのデータを読み込む
+            // 読み込み関数の実行（新着情報 loadNews(); を追加）
             loadMenu();
             loadHead();
+            loadNews();
             loadClubIntro();
             loadClubStart();
             loadOtherSections();
