@@ -170,7 +170,6 @@
         <div class="logo">
             <img src="image/action.png" alt="北九州コミュニティチャレンジ ロゴ" onerror="this.src='https://via.placeholder.com/150x50?text=Logo'">
         </div>
-        <!-- 01menu.csv で生成されます -->
         <ul class="nav-menu" id="navMenuContainer"></ul>
         <button class="hamburger" id="hamburgerBtn">
             <span></span><span></span><span></span>
@@ -180,6 +179,14 @@
     <div class="hero-image-area">
         <img src="image/head.png" alt="メインビジュアル" class="hero-image" onerror="this.src='https://via.placeholder.com/1200x400?text=Hero+Image'">
     </div>
+
+    <!-- news.csv で生成されます -->
+    <section id="news">
+        <h2>新着情報</h2>
+        <ul class="link-list" id="newsContainer">
+            <p>データを読み込んでいます...</p>
+        </ul>
+    </section>
 
     <!-- 02head.csv で生成されます -->
     <section id="about">
@@ -195,15 +202,6 @@
             </div>
         </div>
     </section>
-
-    <!-- 👇 追加：news.csv で生成されます -->
-    <section id="news">
-        <h2>新着情報</h2>
-        <ul class="link-list" id="newsContainer">
-            <p>データを読み込んでいます...</p>
-        </ul>
-    </section>
-    <!-- 👆 ここまで追加 -->
 
     <!-- 03clubinto.csv と allclub.csv で生成されます -->
     <section id="search">
@@ -247,6 +245,9 @@
 
                 <p style="font-weight: bold; margin-top: 15px;">◆申請方法</p>
                 <div id="startupMethodContainer" style="font-size: 14px;"></div>
+                
+                <!-- 👇 追加：電子申請ボタンの表示場所 -->
+                <div id="startupApplicationBtnContainer" style="margin-top: 15px;"></div>
             </div>
 
             <div class="flex-half" style="background-color: #fff0f0;" id="startupConsultContainer">
@@ -283,7 +284,7 @@
         
         <h3>ご意見窓口</h3>
         <p>地域クラブ活動について、ご質問やご意見があれば、以下の問合せフォームからお知らせください。</p>
-        <button class="btn btn-gray" onclick="alert('問合せフォームへ')">問合せフォームはこちら</button>
+        <button id="inquiryBtn" class="btn btn-gray">問合せフォームはこちら</button>
     </section>
 
     <!-- faq.csv -->
@@ -334,6 +335,14 @@
 
     <!-- スクリプト領域 -->
     <script>
+        // 👇 追加：共通のリンク先を保存する変数（電子申請を追加）
+        let contactUrls = {
+            '問い合わせ': '#',
+            'コーディネーターに相談する': '#',
+            '問合せフォームはこちら': '#',
+            '電子申請はこちら': '#' 
+        };
+
         // ----------------------------------------------------
         // 1. 汎用的なCSV読み込み機能
         // ----------------------------------------------------
@@ -400,6 +409,28 @@
             }
         }
 
+        // info.csv の読み込み関数
+        async function loadInfo() {
+            // 👇 追加：電子申請を読み込みの対象にする
+            const data = await fetchCSV('info.csv', [
+                {"対象": "問い合わせ", "リンク先": "#"}, 
+                {"対象": "コーディネーターに相談する", "リンク先": "#"},
+                {"対象": "問合せフォームはこちら", "リンク先": "#"},
+                {"対象": "電子申請はこちら", "リンク先": "#"} 
+            ]);
+            
+            data.forEach(item => {
+                if(item['対象'] && item['リンク先']) {
+                    contactUrls[item['対象']] = item['リンク先'];
+                }
+            });
+
+            const inquiryBtn = document.getElementById('inquiryBtn');
+            if (inquiryBtn) {
+                inquiryBtn.onclick = () => window.open(contactUrls['問合せフォームはこちら'], '_blank');
+            }
+        }
+
         // ----------------------------------------------------
         // 2. 各セクションの描画関数
         // ----------------------------------------------------
@@ -433,7 +464,6 @@
             });
         }
 
-        // 👇 追加：新着情報の読み込み関数
         async function loadNews() {
             const data = await fetchCSV('news.csv', [
                 {"項目": "お知らせ", "内容": "令和6年度の地域クラブ活動がスタートしました。", "リンク先": "#about"},
@@ -459,7 +489,6 @@
                 }
             }).join('');
         }
-        // 👆 ここまで追加
 
         async function loadClubIntro() {
             const data = await fetchCSV('03clubinto.csv', [{"テキスト":"地域クラブ活動は..."}]);
@@ -475,10 +504,15 @@
             document.getElementById('startupDocsContainer').innerHTML = data.filter(d => d['種類'] === '申請書類').map(d => `<li><a href="${d['URL']}">▶ ${d['テキスト']}</a></li>`).join('');
             document.getElementById('startupMethodContainer').innerHTML = data.filter(d => d['種類'] === '申請方法').map(d => `<p>${d['テキスト']}</p>`).join('');
             
+            // 👇 追加：電子申請ボタンにinfo.csvから読み込んだリンクを適用
+            document.getElementById('startupApplicationBtnContainer').innerHTML = `
+                <button class="btn btn-primary" onclick="window.open(contactUrls['電子申請はこちら'], '_blank')">電子申請はこちら</button>
+            `;
+
             document.getElementById('startupConsultContainer').innerHTML = `
                 <p>北九州市教育委員会では、地域クラブ立ち上げを支援し、学校との調整等を実施する「コーディネーター」を配置しています。</p>
                 <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="alert('相談フォームへ移動します')">コーディネーターに相談する</button>
+                    <button class="btn btn-primary" onclick="window.open(contactUrls['コーディネーターに相談する'], '_blank')">コーディネーターに相談する</button>
                 </div>
             `;
         }
@@ -588,7 +622,7 @@
                         ${feeHtml}
                         ${detailLink}
                         <div class="club-action">
-                            <button class="btn btn-gray" style="padding: 8px 15px; font-size: 13px;" onclick="alert('${club["地域クラブ名"]} へ問合せします')">このクラブに問合せ</button>
+                            <button class="btn btn-gray" style="padding: 8px 15px; font-size: 13px;" onclick="window.open(contactUrls['問い合わせ'], '_blank')">問い合わせ</button>
                         </div>
                     </div>
                 `;
@@ -725,7 +759,7 @@
         // ----------------------------------------------------
         // 5. ページ読み込み時の初期設定
         // ----------------------------------------------------
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const navMenu = document.getElementById('navMenuContainer');
             
@@ -738,7 +772,8 @@
                 }
             });
 
-            // 読み込み関数の実行（新着情報 loadNews(); を追加）
+            await loadInfo();
+            
             loadMenu();
             loadHead();
             loadNews();
